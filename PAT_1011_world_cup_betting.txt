@@ -1,0 +1,31 @@
+#include<iostream>
+#include<algorithm>
+#include<string>
+#include<stdio.h>
+
+using namespace std;
+
+
+int main(){
+    float a,b,c,e,result=1;
+    int i;
+    string str;
+    for(i=0;i<3;i++){
+        cin>>a>>b>>c;
+        e=max(max(a,b),c);
+        if(e==a)
+            str.push_back('W');
+        else if(e==b)
+            str.push_back('T');
+        else 
+            str.push_back('L');
+        result*=e;
+    }
+    for(auto it=str.begin();it<str.end();it++)
+        cout<<(*it)<<' ';
+    printf("%.2f",(result*0.65-1)*2);
+    return 0;
+}
+
+
+
