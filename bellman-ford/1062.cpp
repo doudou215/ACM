@@ -7,85 +7,54 @@
 using namespace std;
 
 #define MAXLEN 1200
+#define INF 0x7fffffff
 
-struct 	Vertice {
-	int weight;
-	int prio;
-};
+int edge[101][101];
+int ranks[101];
+int visited[101];
+int dis[101];
 
-struct Edge {
-	int src;
-	int dst;
-	int weight;
-};
+int m, n;
 
-struct Range {
-	int rmin;
-	int rmax;
-};
 
-Edge edge[MAXLEN];
-Vertice	vertices[MAXLEN];
-int dis[MAXLEN];
-Range ranks[MAXLEN];
-int m, n, k;
-
-int bellman() {
-	for (int i = 0; i <= n - 1; i++) {
-		for (int j = 0; j < k; j++) {
-			if (dis[edge[j].dst] > (dis[edge[j].src] + edge[j].weight) && (edge[j].src == 0 || abs(vertices[edge[j].dst].prio - vertices[edge[j].src].prio) <= m)) {
-				if ((abs(vertices[edge[j].dst].prio - ranks[edge[j].src].rmin) > m || abs(vertices[edge[j].dst].prio - ranks[edge[j].src].rmax) > m) && edge[j].src)
-					continue;
-				if (edge[j].src) {
-					ranks[edge[j].dst].rmin = min(vertices[edge[j].dst].prio, ranks[edge[j].src].rmin);
-					ranks[edge[j].dst].rmax = max(vertices[edge[j].dst].prio, ranks[edge[j].src].rmax);
-				}
-				dis[edge[j].dst] = dis[edge[j].src] + edge[j].weight;
-				cout << dis[edge[j].dst] << " " << dis[edge[j].src] << " " << edge[j].dst << " " << edge[j].src << endl;
-			}
+int dfs(int vertice, int rmin, int rmax) {
+	if (visited[vertice])
+		return dis[vertice];
+	visited[vertice] = true;
+	int ans = INF;
+	for (int i = 0; i <= n; i++) {
+		if (!visited[i] && edge[i][vertice] && abs(rmin - ranks[i]) < m && abs(rmax - ranks[i]) < m) {
+			int nextrmin = min(ranks[i], rmin);
+			int nextrmax = max(ranks[i], rmax);
+			ans = min(ans, edge[i][vertice] + dfs(i, nextrmin, nextrmax));
 		}
-		cout << endl;
 	}
-	return dis[1];
+	visited[vertice] = false;
+	return dis[vertice] = ans;
 }
 
 int main() {
 	cin >> m >> n;
-	k = 0;
 	int i = 1;
-	for (int l = 1; l < MAXLEN; l++)
-		dis[l] = 100000;
+	for (int l = 1; l < 101; l++)
+		dis[l] = INF;
 	dis[0] = 0;
-	// ranks[0].rmin = 100000;
-	// cout << dis[1] << endl;
 	while (i <= n) {
 		int counts;
-		cin >> vertices[i].weight >> vertices[i].prio >> counts;
+		cin >> edge[0][i] >> ranks[i] >> counts;
 		int j = 0;
-		ranks[i].rmin = vertices[i].prio;
-		ranks[i].rmax = vertices[i].prio;
-		edge[k].src = 0;
-		edge[k].dst = i;
-		edge[k].weight = vertices[i].weight;
-		k += 1;
 		while (j < counts) {
 			int v, weight;
 			cin >> v >> weight;
-			edge[k].src = v;
-			edge[k].dst = i;
-			edge[k].weight = weight;
-			k += 1;
+			edge[v][i] = weight;
 			j += 1;
 		} 
 		i += 1;
 	}	
 
-	/*
-	for (int i = 0; i < k; i++)
-		cout << edge[i].src << edge[i].dst << edge[i].weight << endl;
-	*/
 	int ret;
-	ret = bellman();
+	visited[0] = 1;
+	ret = dfs(1, ranks[1], ranks[1]);
 	cout << ret << endl;
 	return 0;
 }
